@@ -12,6 +12,7 @@
     "@chakra-ui/react": "^3.26.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@huggingface/inference": "^4.7.1",
     "bcryptjs": "^3.0.2",
     "icons": "^1.0.0",
     "jsonwebtoken": "^9.0.2",

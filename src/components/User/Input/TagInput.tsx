@@ -1,15 +1,15 @@
+// src/components/User/Input/TagInput.tsx
 "use client";
 
 import { useState } from "react";
 import {
-  Flex,
-  Box,
+  Field,
+  HStack,
+  Icon,
   Text,
   Input,
   Button,
-  HStack,
-  VStack,
-  Icon,
+  Box,
 } from "@chakra-ui/react";
 import { FiPlus, FiX } from "react-icons/fi";
 
@@ -41,20 +41,19 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
   };
 
   return (
-    <VStack align="start" gap={3} w="full">
-      {/* Label */}
-      <HStack gap={2} fontSize="sm" fontWeight="semibold" color="white">
-        <Box w={2} h={2} bg="blue.400" rounded="full" />
-        <Text>Tags (Optional)</Text>
-      </HStack>
+    <Field.Root>
+      <Field.Label fontWeight="semibold" color="gray.700" fontSize="sm" display="inline-flex" alignItems="center" gap={2}>
+        <Box w={2} h={2} bg="blue" rounded="full" />
+        Tags (Optional)
+      </Field.Label>
 
-      {/* Daftar "tag" pakai Badge */}
+      {/* Daftar tag */}
       {tags.length > 0 && (
-        <HStack wrap="wrap" gap={2}>
+        <HStack wrap="wrap" gap={2} mb={3}>
           {tags.map((tag) => (
             <HStack
               key={tag}
-              bg="blue.600"
+              bg="blue"
               color="white"
               px={3}
               py={1}
@@ -64,8 +63,9 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
               <Text>#{tag}</Text>
               <Button
                 size="xs"
-                variant="ghost"
-                colorScheme="whiteAlpha"
+                variant="solid"
+                bg="white"
+                color="blue"
                 onClick={() => handleRemoveTag(tag)}
                 p={0}
                 minW="auto"
@@ -87,20 +87,13 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           border="none"
-          boxShadow="md"
-          bg="gray.800"
-          color="white"
-          _placeholder={{ color: "gray.400" }}
-          _focus={{ boxShadow: "outline" }}
+          shadow="sm"
         />
-        <Button
-          colorScheme="blue"
-          onClick={addNewTag}
-        >
+        <Button onClick={addNewTag} bg="blue" border="none" shadow="sm">
           <Icon as={FiPlus} mr={2} />
           Add
         </Button>
       </HStack>
-    </VStack>
+    </Field.Root>
   );
 };

@@ -13,8 +13,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         ml={{ base: "60px", md: "60px" }}
         p={6}
         minH="100vh"
-        bg="gray.900"
-        color="white"
       >
         {children}
       </Box>
