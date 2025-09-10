@@ -2,6 +2,7 @@
 
 import AppSidebar from "@/components/Shared/Navbar/AppSidebar";
 import { Box } from "@chakra-ui/react";
+import "leaflet/dist/leaflet.css";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
