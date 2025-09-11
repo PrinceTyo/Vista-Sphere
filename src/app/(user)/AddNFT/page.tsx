@@ -60,7 +60,6 @@ export default function AddNFT() {
     setLoading(true);
 
     try {
-      // 1. Bentuk FormData
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title);
@@ -72,7 +71,6 @@ export default function AddNFT() {
       formData.append("country", country);
       formData.append("status", status);
 
-      // 2. Kirim ke API
       const res = await fetch("/api/nft", {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("auth-token")}` },
@@ -82,7 +80,6 @@ export default function AddNFT() {
       const result = await res.json();
 
       if (!res.ok) {
-        // 3. Tampilkan error validasi
         if (result.errors) {
           const msgs = result.errors.map((e: any) => `${e.field}: ${e.message}`).join(", ");
           toast.error(msgs);
@@ -92,9 +89,7 @@ export default function AddNFT() {
         return;
       }
 
-      // 4. Sukses
       toast.success("NFT berhasil di-upload!");
-      // router.push("/marketplace");
     } catch (err: any) {
       toast.error(err.message || "Terjadi kesalahan");
     } finally {

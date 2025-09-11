@@ -25,12 +25,25 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      toast.success("Welcome back!");
-      router.push("/profile");
+      
+      if (!res.ok) {
+        throw new Error(data.error || data.message || "Login failed");
+      }
+
+      if (data.token) {
+        localStorage.setItem("auth-token", data.token);
+        const savedToken = localStorage.getItem("auth-token");
+        
+        toast.success("Welcome back!");
+        router.push("/profile");
+      } else {
+        toast.error("Login successful but no token received");
+      }
+      
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -120,6 +133,11 @@ export default function Login() {
               <Link href="/register" color="blue.400" textDecoration="underline">
                 Sign Up
               </Link>
+            </Text>
+
+            {/* Debug info - remove in production */}
+            <Text fontSize="xs" color="gray.600" textAlign="center">
+              After login, check console for token verification
             </Text>
           </VStack>
         </Container>
