@@ -49,7 +49,6 @@ export default function AddNFT() {
 
   const handleCountryFromMap = (code: string) => {
     setCountry(code);
-    // setCountry(getCountryNameByCode(code));
   };
 
   const handleSubmit = async () => {
@@ -57,11 +56,50 @@ export default function AddNFT() {
       toast.error("File & Title wajib diisi");
       return;
     }
+
     setLoading(true);
-    setTimeout(() => {
-      toast.success("NFT Anda telah berhasil di-upload");
+
+    try {
+      // 1. Bentuk FormData
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", title);
+      formData.append("description", desc);
+      formData.append("price", price);
+      formData.append("tags", JSON.stringify(tags));
+      formData.append("location", location);
+      formData.append("coords", coords);
+      formData.append("country", country);
+      formData.append("status", status);
+
+      // 2. Kirim ke API
+      const res = await fetch("/api/nft", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("auth-token")}` },
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        // 3. Tampilkan error validasi
+        if (result.errors) {
+          const msgs = result.errors.map((e: any) => `${e.field}: ${e.message}`).join(", ");
+          toast.error(msgs);
+        } else {
+          toast.error(result.message || "Upload gagal");
+        }
+        return;
+      }
+
+      // 4. Sukses
+      toast.success("NFT berhasil di-upload!");
+      // router.push("/marketplace");
+    } catch (err: any) {
+      toast.error(err.message || "Terjadi kesalahan");
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (

@@ -20,6 +20,7 @@ export const LocationInput = ({
         placeholder="Contoh: Monas, Jakarta Pusat"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
+        shadow="sm" border="none"
       />
     </Field.Root>
   );

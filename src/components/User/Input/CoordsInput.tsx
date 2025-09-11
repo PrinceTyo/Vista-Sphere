@@ -20,6 +20,7 @@ export const CoordsInput = ({
         placeholder="-6.2297, 106.6894"
         value={coords}
         onChange={(e) => setCoords(e.target.value)}
+        shadow="sm" border="none"
       />
     </Field.Root>
   );

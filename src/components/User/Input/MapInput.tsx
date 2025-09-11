@@ -68,7 +68,7 @@ export const MapInput = ({ coords, setCoords, setLocation, setCountryCode }: Map
   const defaultCenter: LatLngExpression = [-6.2, 106.816666];
 
   return (
-    <Box w="full" h="72" rounded="xl" overflow="hidden" border="1px solid #ddd">
+    <Box w="full" h="96" rounded="xl" overflow="hidden" border="1px solid #ddd">
       <MapContainer
         center={defaultCenter}
         zoom={13}

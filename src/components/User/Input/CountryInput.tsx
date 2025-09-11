@@ -130,6 +130,7 @@ export const CountryInput = ({ country, setCountry }: CountryInputProps) => {
                     : "Ketik untuk mencari negara..."
                 }
                 flex="1"
+                shadow="sm" border="none"
               />
             </HStack>
             <Combobox.Trigger />
@@ -137,7 +138,7 @@ export const CountryInput = ({ country, setCountry }: CountryInputProps) => {
 
           <Portal>
             <Combobox.Positioner>
-              <Combobox.Content maxH="300px" overflowY="auto">
+              <Combobox.Content maxH="300px" overflowY="auto" >
                 {filteredCountries.length === 0 ? (
                   <Box p={3} textAlign="center">
                     <Text fontSize="sm" color="gray.500">
