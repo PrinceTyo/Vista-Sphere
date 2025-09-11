@@ -4,9 +4,9 @@ export interface INFT extends Document {
   title: string;
   description: string;
   price: string;
-  tags: string[];
-  location: string;
-  coords: string;
+  tags?: string[];
+  location?: string;
+  coords?: string;
   country: string;
   url_original: string;
   url_preview: string;
@@ -22,8 +22,8 @@ const NFTSchema = new Schema<INFT>(
     description: { type: String, required: true },
     price: { type: String, required: true },
     tags: [{ type: String, trim: true }],
-    location: { type: String, required: true },
-    coords: { type: String, required: true },
+    location: { type: String },
+    coords: { type: String },
     country: { type: String, required: true },
     url_original: { type: String, required: true },
     url_preview: { type: String, required: true },

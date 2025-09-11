@@ -1,4 +1,3 @@
-// src/components/User/Input/ImageInput.tsx
 "use client";
 
 import {
@@ -11,9 +10,12 @@ import {
   Image,
   FileUpload,
   NumberInput,
+  Button,
 } from "@chakra-ui/react";
-import { LuUpload, LuTrash2 } from "react-icons/lu";
+import { LuUpload, LuTrash2, LuCrop } from "react-icons/lu";
 import { type FileAcceptDetails } from "@zag-js/file-upload";
+import { CropImageInput } from "./CropImageInput";
+import { useState } from "react";
 
 interface ImageInputProps {
   file: File | null;
@@ -28,12 +30,29 @@ export const ImageInput = ({
   preview,
   setPreview,
 }: ImageInputProps) => {
-  const handleFile = (d: FileAcceptDetails) => {
-    const f = d.files[0];
-    if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
+  const [originalSrc, setOriginalSrc] = useState("");
+const [showCropper, setShowCropper] = useState(false);
+
+const handleFile = (d: FileAcceptDetails) => {
+  const f = d.files[0];
+  if (!f) return;
+  setFile(f);
+  const url = URL.createObjectURL(f);
+  setPreview(url);
+  setOriginalSrc(url);
+  setShowCropper(false);
+};
+
+const handleCropSave = (croppedFile: File) => {
+  setFile(croppedFile);
+  setPreview(URL.createObjectURL(croppedFile));
+  setShowCropper(false);
+};
+
+const handleReCrop = () => {
+  setPreview(originalSrc);
+  setShowCropper(true);
+};
 
   return (
     <FileUpload.Root onFileAccept={handleFile}>
@@ -64,16 +83,45 @@ export const ImageInput = ({
             onClick={() => {
               setFile(null);
               setPreview("");
+              setShowCropper(false);
             }}
           >
             <LuTrash2 />
           </IconButton>
         )}
 
+        {/* Tombol Crop (muncul kalau sudah preview) */}
+        {preview && (
+          <Button
+            size="xs"
+            position="absolute"
+            top={2}
+            left={2}
+            zIndex={2}
+            onClick={handleReCrop}
+          >
+            <LuCrop /> Atur Frame
+          </Button>
+        )}
+
+        {/* Area Cropper (muncul kalau user klik "Atur Frame") */}
+        {showCropper && (
+          <Box
+            position="absolute"
+            inset={0}
+            zIndex={3}
+            bg="white"
+            rounded="xl"
+            p={2}
+          >
+            <CropImageInput src={preview} onCropComplete={handleCropSave} />
+          </Box>
+        )}
+
         <FileUpload.Trigger asChild>
           <Box
             w="full"
-            h="72"
+            h="full"
             border="2px dashed"
             borderColor={preview ? "gray.200" : "gray.300"}
             rounded="xl"
@@ -114,8 +162,8 @@ export const ImageInput = ({
               </>
             ) : (
               <>
-                <Icon as={LuUpload} w={10} h={10} color="gray.400" />
-                <VStack gap={1}>
+                <Icon as={LuUpload} w={10} h={10} color="gray.400" mt={8} />
+                <VStack gap={1} mb={8}>
                   <Text fontSize="sm" color="gray.600">
                     <Text as="span" fontWeight="semibold" color="blue.600">
                       Klik untuk upload
