@@ -25,6 +25,7 @@ import { MapInput } from "@/components/User/Input/MapInput";
 import { CountryInput } from "@/components/User/Input/CountryInput";
 import { LocationInput } from "@/components/User/Input/LocationInput";
 import { CoordsInput } from "@/components/User/Input/CoordsInput";
+import { toaster } from "@/components/ui/toaster";
 
 export default function AddNFT() {
   const [file, setFile] = useState<File | null>(null);
@@ -52,46 +53,82 @@ export default function AddNFT() {
   };
 
   const handleSubmit = async () => {
-    if (!file || !title) {
-      toast.error("File & Title wajib diisi");
+    const FIELD_NAME: Record<string, string> = {
+      title: "Title",
+      desc: "Description",
+      file: "Image",
+      country: "Country",
+      price: "Price",
+    };
+    const required: [keyof typeof FIELD_NAME, any][] = [
+      ["file", file],
+      ["title", title],
+      ["desc", desc],
+      ["country", country],
+      ["price", price],
+    ];
+
+    const empty = required.filter(([, v]) => !v || v === "");
+    if (empty.length) {
+      const missing = empty.map(([k]) => FIELD_NAME[k]).join(", ");
+      toaster.error({
+        title: "Upload failed",
+        description: `${missing} is required.`,
+        duration: 3000,
+        closable: true,
+      });
       return;
     }
 
     setLoading(true);
-
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("description", desc);
-      formData.append("price", price);
-      formData.append("tags", JSON.stringify(tags));
-      formData.append("location", location);
-      formData.append("coords", coords);
-      formData.append("country", country);
-      formData.append("status", status);
+      const form = new FormData();
+      form.append("file", file!);
+      form.append("title", title);
+      form.append("description", desc);
+      form.append("price", price);
+      form.append("tags", JSON.stringify(tags));
+      form.append("location", location);
+      form.append("coords", coords);
+      form.append("country", country);
+      form.append("status", status);
 
       const res = await fetch("/api/nft", {
         method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("auth-token")}` },
-        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth-token")}`,
+        },
+        body: form,
       });
 
       const result = await res.json();
-
       if (!res.ok) {
-        if (result.errors) {
-          const msgs = result.errors.map((e: any) => `${e.field}: ${e.message}`).join(", ");
-          toast.error(msgs);
-        } else {
-          toast.error(result.message || "Upload gagal");
-        }
+        const msg = result.errors
+          ? result.errors.map((e: any) => `${e.field}: ${e.message}`).join(", ")
+          : result.message || "Upload failed";
+        toaster.error({
+          title: "Upload failed",
+          description: msg,
+          duration: 3000,
+          closable: true,
+        });
         return;
       }
 
-      toast.success("NFT berhasil di-upload!");
+      toaster.success({
+        title: "Success",
+        description: "NFT uploaded successfully!",
+        duration: 3000,
+        closable: true,
+      });
+      /* optional: reset form here */
     } catch (err: any) {
-      toast.error(err.message || "Terjadi kesalahan");
+      toaster.error({
+        title: "Error",
+        description: err.message || "An unknown error occurred.",
+        duration: 3000,
+        closable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -127,13 +164,6 @@ export default function AddNFT() {
                       Tentukan lokasi pengambilan foto
                     </Text>
                   </VStack>
-                </HStack>
-                <HStack>
-                  <Box w={2} h={2} bg="blue" rounded="full" />
-                  <Text fontSize="sm" color="gray.700" fontWeight="semibold">
-                    Klik peta untuk memilih lokasi, coordinates, location, & country otomatis
-                    terisi
-                  </Text>
                 </HStack>
 
                 <MapInput

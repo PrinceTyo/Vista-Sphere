@@ -1,4 +1,3 @@
-// src/components/User/Input/TagInput.tsx
 "use client";
 
 import { useState } from "react";
@@ -12,6 +11,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FiPlus, FiX } from "react-icons/fi";
+import { toaster } from "@/components/ui/toaster";
 
 interface TagInputProps {
   tags: string[];
@@ -22,11 +22,41 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
   const [inputValue, setInputValue] = useState("");
 
   const addNewTag = () => {
-    const val = inputValue.trim();
-    if (val && !tags.includes(val)) {
-      setTags([...tags, val]);
-      setInputValue("");
+    if (tags.length >= 10) {
+      toaster.error({
+        title: "Limit reached",
+        description: "You can add up to 10 tags only.",
+        duration: 3000,
+        closable: true,
+      });
+      return;
     }
+
+    const val = inputValue.trim();
+    if (!val) return;
+
+    if (val.length > 10) {
+      toaster.error({
+        title: "Too long",
+        description: "Each tag must be 10 characters or less.",
+        duration: 3000,
+        closable: true,
+      });
+      return;
+    }
+
+    if (tags.includes(val)) {
+      toaster.error({
+        title: "Duplicate tag",
+        description: "This tag already exists.",
+        duration: 3000,
+        closable: true,
+      });
+      return;
+    }
+
+    setTags([...tags, val]);
+    setInputValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -42,12 +72,18 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
 
   return (
     <Field.Root>
-      <Field.Label fontWeight="semibold" color="gray.700" fontSize="sm" display="inline-flex" alignItems="center" gap={2}>
+      <Field.Label
+        fontWeight="semibold"
+        color="gray.700"
+        fontSize="sm"
+        display="inline-flex"
+        alignItems="center"
+        gap={2}
+      >
         <Box w={2} h={2} bg="blue" rounded="full" />
         Tags (Optional)
       </Field.Label>
 
-      {/* Daftar tag */}
       {tags.length > 0 && (
         <HStack wrap="wrap" gap={2} mb={3}>
           {tags.map((tag) => (
@@ -78,7 +114,6 @@ export const TagInput = ({ tags, setTags }: TagInputProps) => {
         </HStack>
       )}
 
-      {/* Input + tombol tambah */}
       <HStack gap={2} w="full">
         <Input
           flex={1}

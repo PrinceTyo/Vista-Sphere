@@ -9,13 +9,13 @@ import {
   VStack,
   Image,
   FileUpload,
-  NumberInput,
   Button,
 } from "@chakra-ui/react";
 import { LuUpload, LuTrash2, LuCrop } from "react-icons/lu";
 import { type FileAcceptDetails } from "@zag-js/file-upload";
 import { CropImageInput } from "./CropImageInput";
 import { useState } from "react";
+import { toaster } from "@/components/ui/toaster";
 
 interface ImageInputProps {
   file: File | null;
@@ -31,28 +31,105 @@ export const ImageInput = ({
   setPreview,
 }: ImageInputProps) => {
   const [originalSrc, setOriginalSrc] = useState("");
-const [showCropper, setShowCropper] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
 
-const handleFile = (d: FileAcceptDetails) => {
-  const f = d.files[0];
-  if (!f) return;
-  setFile(f);
-  const url = URL.createObjectURL(f);
-  setPreview(url);
-  setOriginalSrc(url);
-  setShowCropper(false);
-};
+  const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/svg+xml",
+  ];
+  const MAX_SIZE_MB = 20;
 
-const handleCropSave = (croppedFile: File) => {
-  setFile(croppedFile);
-  setPreview(URL.createObjectURL(croppedFile));
-  setShowCropper(false);
-};
+  const handleFile = async (d: FileAcceptDetails) => {
+    const f = d.files[0];
+    if (!f) return;
+    const toastId = "upload-toast-" + Date.now();
 
-const handleReCrop = () => {
-  setPreview(originalSrc);
-  setShowCropper(true);
-};
+    toaster.loading({
+      id: toastId,
+      title: "Uploading image...",
+      description: "Please wait while we process your image.",
+    });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      if (!ALLOWED_TYPES.includes(f.type.toLowerCase())) {
+        toaster.dismiss(toastId);
+        toaster.error({
+          title: "Unsupported format",
+          description: "Use JPG, JPEG, PNG, or SVG only.",
+          duration: 3000,
+        });
+        return;
+      }
+
+      if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+        toaster.dismiss(toastId);
+        toaster.error({
+          title: "File too large",
+          description: `Maximum ${MAX_SIZE_MB} MB allowed.`,
+          duration: 3000,
+        });
+        return;
+      }
+
+      setFile(f);
+      const url = URL.createObjectURL(f);
+      setPreview(url);
+      setOriginalSrc(url);
+      setShowCropper(false);
+
+      toaster.dismiss(toastId);
+      toaster.success({
+        title: "Image uploaded successfully!",
+        description: "Your image is ready to use.",
+        duration: 3000,
+        closable: true,
+      });
+    } catch (error) {
+      toaster.dismiss(toastId);
+      toaster.error({
+        title: "Upload failed",
+        description: "Something went wrong. Please try again.",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    const toastId = "delete-toast";
+    toaster.loading({
+      id: toastId,
+      title: "Removing image...",
+      closable: false,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    setFile(null);
+    setPreview("");
+    setShowCropper(false);
+
+    toaster.success({
+      id: toastId,
+      title: "Image removed",
+      description: "The image has been successfully deleted.",
+      duration: 3000,
+      closable: true,
+    });
+  };
+
+  const handleCropSave = (croppedFile: File) => {
+    setFile(croppedFile);
+    setPreview(URL.createObjectURL(croppedFile));
+    setShowCropper(false);
+  };
+
+  const handleReCrop = () => {
+    setPreview(originalSrc);
+    setShowCropper(true);
+  };
 
   return (
     <FileUpload.Root onFileAccept={handleFile}>
@@ -80,17 +157,13 @@ const handleReCrop = () => {
             top={2}
             right={2}
             zIndex={2}
-            onClick={() => {
-              setFile(null);
-              setPreview("");
-              setShowCropper(false);
-            }}
+            onClick={handleDelete}
           >
             <LuTrash2 />
           </IconButton>
         )}
 
-        {/* Tombol Crop (muncul kalau sudah preview) */}
+        {/* Tombol Crop */}
         {preview && (
           <Button
             size="xs"
@@ -104,7 +177,7 @@ const handleReCrop = () => {
           </Button>
         )}
 
-        {/* Area Cropper (muncul kalau user klik "Atur Frame") */}
+        {/* Area Cropper */}
         {showCropper && (
           <Box
             position="absolute"
@@ -171,7 +244,7 @@ const handleReCrop = () => {
                     atau drag & drop
                   </Text>
                   <Text fontSize="xs" color="gray.500">
-                    PNG, JPG, GIF, WebP (Max. 10MB)
+                    PNG, JPG, JPEG, SVG (Max. 20MB)
                   </Text>
                 </VStack>
               </>
